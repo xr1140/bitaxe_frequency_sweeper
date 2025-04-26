@@ -1,4 +1,4 @@
-# Bitaxe Status Logger
+# Bitaxe Frequency Sweeper and Status Logger
 
 The `bitaxe_status_logger.py` is a Python script designed to monitor and log the performance of a Bitaxe Bitcoin mining device. It tests the device across a range of frequencies, collecting metrics such as hashrate, power consumption, temperature, and efficiency (J/TH). The script supports automated testing, critical threshold monitoring, and rebooting the device if performance stalls. It generates detailed logs for analysis, making it ideal for optimizing Bitaxe performance.
 
