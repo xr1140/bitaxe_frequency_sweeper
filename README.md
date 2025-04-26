@@ -27,7 +27,7 @@ Frequency: 1075 MHz, Voltage: 1.4770 V, Estimated Hashrate: 2193.0 GH/s
 - **Frequency Range Testing**: Tests the Bitaxe across a user-defined frequency range (e.g., 490–510 MHz) with configurable steps.
 - **Metric Logging**: Records hashrate, power, voltage, current, chip temperature, VR temperature, J/TH, and core voltage.
 - **Critical Threshold Monitoring**:
-  - Stops testing if power ≥ 39 W, chip temperature ≥ 67°C, or VR temperature ≥ 90°C.
+  - Stops testing if power ≥ 24 W, chip temperature ≥ 65°C, or VR temperature ≥ 90°C.
   - Warns (orange console output) if power ≥ 35 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C.
 - **Reboot Capability**: Reboots the Bitaxe if a specified number of consecutive identical hashrate readings are detected, indicating potential stalls.
 - **Dual Log Files**:
@@ -148,6 +148,9 @@ python bitaxe_status_logger.py -v 1295 -f 500 -ip 192.168.2.205 -range 10 -step 
 - **Temperature Issues**: If tests stop due to high temperatures (≥ 67°C), improve cooling (e.g., add a Noctua 40mm fan or apply Thermal Grizzly Kryonaut).
 - **Hashrate Issues**: If identical hashrate readings trigger frequent reboots, adjust `-reboot X` to a higher value or check the Bitaxe's mining pool connection.
 - **Log Analysis**: Review the readings log for reboot or critical stop notes, and the summaries log for performance metrics.
+
+## Ambient Air Temperature Changes
+The ambient air temperatures will fluctuate from night to day. This is why you should not push your bitaxe to the limit as temperatures can change throughout the day. Best to keep below maximum limits to allow for ambient air temperature changes.
 
 ## Contributing
 Contributions are welcome! Please submit issues or pull requests to the GitHub repository. For major changes, open an issue first to discuss the proposed changes.
