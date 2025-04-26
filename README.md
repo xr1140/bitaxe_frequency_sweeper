@@ -2,6 +2,24 @@
 
 The `bitaxe_status_logger.py` is a Python script designed to monitor and log the performance of a Bitaxe Bitcoin mining device. It tests the device across a range of frequencies, collecting metrics such as hashrate, power consumption, temperature, and efficiency (J/TH). The script supports automated testing, critical threshold monitoring, and rebooting the device if performance stalls. It generates detailed logs for analysis, making it ideal for optimizing Bitaxe performance.
 
+The idea is that you already know from other tuning scripts and efforts approximately how hard you can drive your BitAxe in terms of Voltage without going over the Power, Temperature, or Voltage Regulator Temperatures. I have Kryonaut thermal paste, a low-profile pro heat sink with a 60mm Noctua fan on the front and back. I know my voltage limit is 1295mV. This code helps find the optimal frequency for the set voltage.
+
+Use the bm1370_voltage_calculator.py to get some estimates on frequency, voltage, and expected hash rates. Then use bitaxe_status_logger.py to test various frequencies around that voltage to find the maximum hash rate.
+```
+Frequency: 400 MHz, Voltage: 0.9000 V, Estimated Hashrate: 816.0 GH/s
+Frequency: 550 MHz, Voltage: 1.1000 V, Estimated Hashrate: 1122.0 GH/s
+Frequency: 650 MHz, Voltage: 1.1404 V, Estimated Hashrate: 1326.0 GH/s
+Frequency: 700 MHz, Voltage: 1.1607 V, Estimated Hashrate: 1428.0 GH/s
+Frequency: 750 MHz, Voltage: 1.1809 V, Estimated Hashrate: 1530.0 GH/s
+Frequency: 800 MHz, Voltage: 1.2011 V, Estimated Hashrate: 1632.0 GH/s
+Frequency: 850 MHz, Voltage: 1.2213 V, Estimated Hashrate: 1734.0 GH/s
+Frequency: 900 MHz, Voltage: 1.2416 V, Estimated Hashrate: 1836.0 GH/s
+Frequency: 950 MHz, Voltage: 1.2618 V, Estimated Hashrate: 1938.0 GH/s
+Frequency: 1000 MHz, Voltage: 1.2820 V, Estimated Hashrate: 2040.0 GH/s
+Frequency: 1005 MHz, Voltage: 1.2950 V, Estimated Hashrate: 2050.2 GH/s
+Frequency: 1050 MHz, Voltage: 1.4120 V, Estimated Hashrate: 2142.0 GH/s
+Frequency: 1075 MHz, Voltage: 1.4770 V, Estimated Hashrate: 2193.0 GH/s
+```
 ## Features
 - **Frequency Range Testing**: Tests the Bitaxe across a user-defined frequency range (e.g., 490–510 MHz) with configurable steps.
 - **Metric Logging**: Records hashrate, power, voltage, current, chip temperature, VR temperature, J/TH, and core voltage.
