@@ -55,7 +55,7 @@ Frequency: 1075 MHz, Voltage: 1.4770 V, Estimated Hashrate: 2193.0 GH/s
 Run the script with the required command-line parameters:
 
 ```bash
-python bitaxe_status_logger.py -v VOLTAGE -f FREQUENCY -ip IP_ADDRESS [-range RANGE] [-step STEP] [-reboot REBOOT]
+python bitaxe_status_logger.py -v VOLTAGE -f FREQUENCY -ip IP_ADDRESS [-range RANGE] [-step STEP] [-reboot COUNT]
 ```
 
 ### Command-Line Parameters
