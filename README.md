@@ -27,8 +27,8 @@ Frequency: 1075 MHz, Voltage: 1.4770 V, Estimated Hashrate: 2193.0 GH/s
 - **Frequency Range Testing**: Tests the Bitaxe across a user-defined frequency range (e.g., 490–510 MHz) with configurable steps.
 - **Metric Logging**: Records hashrate, power, voltage, current, chip temperature, VR temperature, J/TH, and core voltage.
 - **Critical Threshold Monitoring**:
-  - Stops testing if power ≥ 24 W, chip temperature ≥ 65°C, or VR temperature ≥ 90°C.
-  - Warns (orange console output) if power ≥ 35 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C.
+  - Stops testing if power ≥ 27W, chip temperature ≥ 67°C, or VR temperature ≥ 90°C. (Configurable in the code)
+  - Warns (orange console output) if power ≥ 23 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C. (Configurable in the code)
 - **Reboot Capability**: Reboots the Bitaxe if a specified number of consecutive identical hashrate readings are detected, indicating potential stalls.
 - **Dual Log Files**:
   - **Readings Log**: Time-series data with timestamped metrics.
