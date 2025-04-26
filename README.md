@@ -158,3 +158,9 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ## Acknowledgments
 - Built for the Bitaxe community to optimize Bitcoin mining performance.
 - Thanks to the ESP-Miner project for providing the Bitaxe API.
+
+## Inspirational Shoutouts
+- Starficient: https://github.com/kha1n3vol3/BitaxePID
+- Hurllz: https://github.com/Hurllz/bitaxe-temp-monitor/
+- WhiteyCookie: https://github.com/WhiteyCookie/Bitaxe-Hashrate-Benchmark
+- mrv777: https://github.com/mrv777/bitaxe-hashrate-benchmark
