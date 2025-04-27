@@ -71,7 +71,7 @@ def validate_ip(ip):
 def parse_arguments():
     """Parse command-line arguments and print help if required parameters are missing."""
     parser = argparse.ArgumentParser(
-        description="Bitaxe status logger for monitoring hashrate, temperature, and power across a frequency range."
+        description="Bitaxe status logger for monitoring hashrate, temperature, and power across a frequency range or in monitor-only mode."
     )
     parser.add_argument(
         "-v", "--voltage",
@@ -95,19 +95,24 @@ def parse_arguments():
         "-range",
         type=int,
         default=10,
-        help="Frequency range in MHz to test above and below the initial frequency (default 10 MHz)"
+        help="Frequency range in MHz to test above and below the initial frequency (default 10 MHz, ignored in monitor mode)"
     )
     parser.add_argument(
         "-step",
         type=int,
         default=2,
-        help="Frequency step size in MHz (default 2 MHz)"
+        help="Frequency step size in MHz (default 2 MHz, ignored in monitor mode)"
     )
     parser.add_argument(
         "-reboot",
         type=int,
         default=None,
         help="Number of consecutive identical hashrate readings to trigger a reboot (optional)"
+    )
+    parser.add_argument(
+        "-m", "--monitor",
+        action="store_true",
+        help="Run in monitor-only mode at the specified frequency indefinitely (sets range=0, step=0)"
     )
 
     args = parser.parse_args()
@@ -123,7 +128,7 @@ def parse_arguments():
     if args.reboot is not None and args.reboot <= 0:
         parser.error("Reboot threshold must be positive")
 
-    return args.voltage, args.frequency, validate_ip(args.ip_address), args.range, args.step, args.reboot
+    return args.voltage, args.frequency, validate_ip(args.ip_address), args.range, args.step, args.reboot, args.monitor
 
 def fetch_system_info(run_min_values, run_max_values, run_sum_values, run_count_values, hashrate_readings):
     """Fetch system settings and update min/max/sum/count and hashrate readings."""
@@ -225,7 +230,7 @@ def log_data(frequency, core_voltage, run_number, note="", min_values=None, max_
             print(RED + f"Error logging readings data: {e}" + RESET)
             return readings_filename
     
-    # Log summaries to summaries file
+    # Log summaries to summaries file (skipped in monitor mode)
     try:
         with open(summaries_filename, "a") as f:
             avg_hashrate = sum_values["hashRate"] / count_values["hashRate"] if count_values["hashRate"] > 0 else 0
@@ -241,21 +246,26 @@ def log_data(frequency, core_voltage, run_number, note="", min_values=None, max_
         print(RED + f"Error logging summaries data: {e}" + RESET)
         return summaries_filename
 
-def display_status(reading_count, total_readings, run_number, total_tests, start_time):
+def display_status(reading_count, total_readings, run_number, total_tests, start_time, monitor_mode=False):
     """Display current system status, including coreVoltage, reading progress (x/y), test number, and estimated time remaining."""
     temp_color = RED if system_info["temp"] >= CONFIG["max_temp_critical"] else ORANGE if system_info["temp"] >= CONFIG["max_temp_warning"] else GREEN
     vrtemp_color = RED if system_info["vrTemp"] >= CONFIG["max_vrtemp_critical"] else ORANGE if system_info["vrTemp"] >= CONFIG["max_vrtemp_warning"] else GREEN
     power_color = RED if system_info["power"] >= CONFIG["max_power_critical"] else ORANGE if system_info["power"] >= CONFIG["max_power_warning"] else GREEN
     
-    # Calculate estimated time remaining in hours and minutes
-    elapsed_time = time.time() - start_time
-    remaining_tests = total_tests - run_number
-    time_remaining = (CONFIG["run_duration"] - elapsed_time) + (remaining_tests * CONFIG["run_duration"])
-    hours = int(time_remaining // 3600)
-    minutes = int((time_remaining % 3600) // 60)
+    if monitor_mode:
+        # In monitor mode, no time remaining or test progress
+        print(f"{GREEN}Status [{datetime.now().strftime('%H:%M:%S')}] Monitor Mode ({reading_count}/∞){RESET}")
+    else:
+        # Calculate estimated time remaining in hours and minutes
+        elapsed_time = time.time() - start_time
+        remaining_tests = total_tests - run_number
+        time_remaining = (CONFIG["run_duration"] - elapsed_time) + (remaining_tests * CONFIG["run_duration"])
+        hours = int(time_remaining // 3600)
+        minutes = int((time_remaining % 3600) // 60)
+        
+        print(f"{GREEN}Status [{datetime.now().strftime('%H:%M:%S')}] Test {run_number}/{total_tests} ({reading_count}/{total_readings}) "
+              f"Est. Time Remaining: {hours}h {minutes}m{RESET}")
     
-    print(f"{GREEN}Status [{datetime.now().strftime('%H:%M:%S')}] Test {run_number}/{total_tests} ({reading_count}/{total_readings}) "
-          f"Est. Time Remaining: {hours}h {minutes}m{RESET}")
     print(f"Hashrate: {system_info['hashRate']:.2f} GH/s")
     print(f"J/TH: {system_info['jth']:.2f} J/TH")
     print(f"Temp: {temp_color}{system_info['temp']:.2f}°C{RESET}")
@@ -297,22 +307,23 @@ def display_summary(csv_files):
     if csv_files:
         print(GREEN + "\nCSV Files:" + RESET)
         print(f"- Readings: {csv_files[0]}")
-        print(f"- Summaries: {csv_files[1]}")
+        if len(csv_files) > 1:
+            print(f"- Summaries: {csv_files[1]}")
     else:
         print(ORANGE + "No CSV files generated." + RESET)
 
-def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests):
-    """Run a single test at specified frequency and core voltage."""
+def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests, monitor_mode=False):
+    """Run a single test at specified frequency and core voltage, or monitor indefinitely in monitor mode."""
     global best_hashrate, best_frequency, best_voltage, critical_temp_reached
     if not set_system_settings(frequency, core_voltage):
         print(RED + f"Skipping run {run_number} at {frequency} MHz, {core_voltage} mV" + RESET)
         return None
 
-    print(GREEN + f"Run {run_number}: {frequency} MHz, {core_voltage} mV for {CONFIG['run_duration']}s" + RESET)
+    print(GREEN + f"Run {run_number}: {frequency} MHz, {core_voltage} mV {'indefinitely' if monitor_mode else f'for {CONFIG['run_duration']}s'}" + RESET)
     start_time = time.time()
     last_log_time = start_time
     reading_count = 0
-    total_readings = int(CONFIG["run_duration"] / CONFIG["status_interval"])  # e.g., 600 / 10 = 60
+    total_readings = float('inf') if monitor_mode else int(CONFIG["run_duration"] / CONFIG["status_interval"])  # e.g., 600 / 10 = 60
     run_min_values = {key: float('inf') for key in system_info}
     run_max_values = {key: float('-inf') for key in system_info}
     run_sum_values = {key: 0.0 for key in system_info}
@@ -321,7 +332,7 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests)
     last_hashrate = None
     identical_hashrate_count = 0
 
-    while (time.time() - start_time < CONFIG["run_duration"]) and not is_interrupted:
+    while (monitor_mode or time.time() - start_time < CONFIG["run_duration"]) and not is_interrupted:
         if not fetch_system_info(run_min_values, run_max_values, run_sum_values, run_count_values, hashrate_readings):
             print(ORANGE + "Retrying in 10s..." + RESET)
             time.sleep(10)
@@ -359,29 +370,30 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests)
             set_system_settings(new_frequency, new_core_voltage)
             csv_filename = log_data(frequency, core_voltage, run_number,
                                    f"Reduced and stopped due to {reason}")
-            # Update best hashrate before stopping
-            if run_count_values["hashRate"] > 0:
-                avg_hashrate = run_sum_values["hashRate"] / run_count_values["hashRate"]
-                if avg_hashrate > best_hashrate:
-                    best_hashrate = avg_hashrate
-                    best_frequency = frequency
-                    best_voltage = core_voltage
-            csv_filename = log_data(frequency, core_voltage, run_number,
-                                   min_values=run_min_values, max_values=run_max_values,
-                                   sum_values=run_sum_values, count_values=run_count_values)
-            # Set best settings
-            if best_frequency is not None and best_voltage is not None:
+            if not monitor_mode:
+                # Update best hashrate before stopping
+                if run_count_values["hashRate"] > 0:
+                    avg_hashrate = run_sum_values["hashRate"] / run_count_values["hashRate"]
+                    if avg_hashrate > best_hashrate:
+                        best_hashrate = avg_hashrate
+                        best_frequency = frequency
+                        best_voltage = core_voltage
+                csv_filename = log_data(frequency, core_voltage, run_number,
+                                       min_values=run_min_values, max_values=run_max_values,
+                                       sum_values=run_sum_values, count_values=run_count_values)
+            # Set best settings or revert to initial
+            if not monitor_mode and best_frequency is not None and best_voltage is not None:
                 print(GREEN + f"Setting system to best hashrate settings: {best_frequency} MHz, {best_voltage} mV" + RESET)
                 if not set_system_settings(best_frequency, best_voltage):
                     print(RED + f"Failed to set best hashrate settings. Reverting to initial settings." + RESET)
                     set_system_settings(initial_frequency, initial_core_voltage)
             else:
-                print(ORANGE + "No valid runs completed. Setting to initial settings." + RESET)
+                print(ORANGE + "No valid runs completed or in monitor mode. Setting to initial settings." + RESET)
                 set_system_settings(initial_frequency, initial_core_voltage)
             return csv_filename
 
         reading_count += 1
-        display_status(reading_count, total_readings, run_number, total_tests, start_time)
+        display_status(reading_count, total_readings, run_number, total_tests, start_time, monitor_mode=monitor_mode)
 
         if time.time() - last_log_time >= CONFIG["log_interval"]:
             csv_filename = log_data(frequency, core_voltage, run_number)
@@ -389,62 +401,83 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests)
 
         time.sleep(CONFIG["status_interval"])
 
-    # Update best hashrate at run completion
-    if run_count_values["hashRate"] > 0:
+    # Update best hashrate at run completion (skipped in monitor mode)
+    if not monitor_mode and run_count_values["hashRate"] > 0:
         avg_hashrate = run_sum_values["hashRate"] / run_count_values["hashRate"]
         if avg_hashrate > best_hashrate:
             best_hashrate = avg_hashrate
             best_frequency = frequency
             best_voltage = core_voltage
-    csv_filename = log_data(frequency, core_voltage, run_number,
-                           min_values=run_min_values, max_values=run_max_values,
-                           sum_values=run_sum_values, count_values=run_count_values)
-    return csv_filename
+        csv_filename = log_data(frequency, core_voltage, run_number,
+                               min_values=run_min_values, max_values=run_max_values,
+                               sum_values=run_sum_values, count_values=run_count_values)
+        return csv_filename
+    return readings_filename
 
 def main():
-    """Main loop for frequency tests."""
+    """Main loop for frequency tests or monitor mode."""
     global initial_frequency, initial_core_voltage, bitaxe_ip, best_frequency, best_voltage, critical_temp_reached
     global readings_filename, summaries_filename
-    initial_core_voltage, initial_frequency, bitaxe_ip, freq_range, freq_step, reboot_threshold = parse_arguments()
+    initial_core_voltage, initial_frequency, bitaxe_ip, freq_range, freq_step, reboot_threshold, monitor_mode = parse_arguments()
     
-    # Calculate total number of tests
-    total_tests = ((initial_frequency + freq_range) - (initial_frequency - freq_range)) // freq_step + 1
+    # Adjust range and step for monitor mode
+    if monitor_mode:
+        freq_range = 0
+        freq_step = 1  # Avoid division by zero
+        total_tests = 1
+    else:
+        total_tests = ((initial_frequency + freq_range) - (initial_frequency - freq_range)) // freq_step + 1
     
-    # Initialize log filenames with frequency, voltage, and timestamp
+    # Initialize log filenames with voltage first, then frequency
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    readings_filename = f"bitaxe_readings_freq_{initial_frequency}_volt_{initial_core_voltage}_{timestamp}.csv"
-    summaries_filename = f"bitaxe_summaries_freq_{initial_frequency}_volt_{initial_core_voltage}_{timestamp}.csv"
+    readings_filename = f"bitaxe_readings_volt_{initial_core_voltage}_freq_{initial_frequency}_{timestamp}.csv"
+    summaries_filename = f"bitaxe_summaries_volt_{initial_core_voltage}_freq_{initial_frequency}_{timestamp}.csv"
     
-    # Set initial frequency to initial_frequency - freq_range
-    start_frequency = initial_frequency - freq_range
+    # Set initial frequency to initial_frequency - freq_range (or just initial_frequency in monitor mode)
+    start_frequency = initial_frequency if monitor_mode else initial_frequency - freq_range
     print(GREEN + f"Requested initial settings: {start_frequency} MHz, {initial_core_voltage} mV" + RESET)
     if not set_system_settings(start_frequency, initial_core_voltage):
         print(RED + "Failed to set initial settings. Exiting." + RESET)
         sys.exit(1)
     
     print(GREEN + f"Initial settings applied: {start_frequency} MHz, {initial_core_voltage} mV, IP: {bitaxe_ip}" + RESET)
-    print(GREEN + f"Testing from {start_frequency} MHz to {initial_frequency + freq_range} MHz with step {freq_step} MHz" + RESET)
-    csv_files = [readings_filename, summaries_filename]
+    csv_files = [readings_filename]
+    if not monitor_mode:
+        csv_files.append(summaries_filename)
+        print(GREEN + f"Testing from {start_frequency} MHz to {initial_frequency + freq_range} MHz with step {freq_step} MHz" + RESET)
+    else:
+        print(GREEN + f"Monitoring at {initial_frequency} MHz indefinitely" + RESET)
 
-    for run_number, freq in enumerate(range(start_frequency, initial_frequency + freq_range + 1, freq_step), 1):
-        csv_file = run_test(freq, initial_core_voltage, run_number, reboot_threshold, total_tests)
+    if monitor_mode:
+        # Single indefinite run in monitor mode
+        csv_file = run_test(initial_frequency, initial_core_voltage, 1, reboot_threshold, total_tests, monitor_mode=True)
         if csv_file and csv_file not in csv_files:
             csv_files.append(csv_file)
-        if is_interrupted or critical_temp_reached:
-            break
+    else:
+        # Frequency range testing
+        for run_number, freq in enumerate(range(start_frequency, initial_frequency + freq_range + 1, freq_step), 1):
+            csv_file = run_test(freq, initial_core_voltage, run_number, reboot_threshold, total_tests)
+            if csv_file and csv_file not in csv_files:
+                csv_files.append(csv_file)
+            if is_interrupted or critical_temp_reached:
+                break
 
-    # Set system to best hashrate settings if not already set
-    if not critical_temp_reached:
+    # Set system to best hashrate settings if not already set (skipped in monitor mode)
+    if not monitor_mode and not critical_temp_reached:
         if best_frequency is not None and best_voltage is not None:
             print(GREEN + f"Setting system to best hashrate settings: {best_frequency} MHz, {best_voltage} mV" + RESET)
             if not set_system_settings(best_frequency, best_voltage):
                 print(RED + f"Failed to set best hashrate settings. Reverting to initial settings." + RESET)
                 set_system_settings(initial_frequency, initial_core_voltage)
         else:
-            print(ORANGE + "No valid runs completed. Setting to initial settings." + RESET)
+            print(ORANGE + "No valid runs completed. Reverting to initial settings." + RESET)
             set_system_settings(initial_frequency, initial_core_voltage)
 
-    display_summary(csv_files)
+    if not monitor_mode:
+        display_summary(csv_files)
+    else:
+        print(GREEN + "\nMonitor mode terminated. CSV File:" + RESET)
+        print(f"- Readings: {csv_files[0]}")
 
 if __name__ == "__main__":
     main()
