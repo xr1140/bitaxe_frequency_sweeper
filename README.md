@@ -73,7 +73,7 @@ Frequency (MHz) | Voltage (mV) | Est. Hashrate (GH/s)
             930 | 1266.4       | 1960.9
             935 | 1268.5       | 1971.4
             940 | 1270.7       | 1982.0
-            945 | 1272.9       | 1992.5
+            945 | 12.9       | 1992.5
             950 | 1275.1       | 2003.1
             955 | 1277.3       | 2013.6
             960 | 1279.5       | 2024.2
@@ -197,7 +197,7 @@ python bitaxe_status_logger.py -v 1295 -f 500 -ip 192.168.1.100 -m -reboot 5
      - Chip temperature ≥ 67°C
      - VR temperature ≥ 90°C
    - Reduces frequency by 10 MHz and voltage by 10 mV, logs the event, sets the best hashrate settings, and exits the test.
-   - Displays warnings in orange if power ≥ 27 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C.
+   - Displays warnings in orange if power ≥ 24 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C.
 
 4. **Reboot Logic**:
    - If `-reboot X` is specified, monitors consecutive identical hashrate readings.
