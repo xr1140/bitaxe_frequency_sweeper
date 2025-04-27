@@ -22,8 +22,8 @@ CONFIG = {
     "max_temp_critical": 67,  # °C for chip temperature
     "max_vrtemp_warning": 80,  # °C for voltage regulator temperature
     "max_vrtemp_critical": 90,  # °C for voltage regulator temperature
-    "max_power_warning": 24,  # W for power
-    "max_power_critical": 27,  # W for power
+    "max_power_warning": 35,  # W for power
+    "max_power_critical": 39,  # W for power
     "min_frequency": 400,  # MHz (safety minimum)
     "min_core_voltage": 1000,  # mV (safety minimum)
 }
@@ -214,14 +214,12 @@ def log_data(frequency, core_voltage, run_number, note="", min_values=None, max_
         try:
             with open(readings_filename, "a") as f:
                 if os.path.getsize(readings_filename) == 0:
-                    f.write("Timestamp,Frequency(MHz),Power(W),Voltage(mV),Current(mA),"
-                            "Temp(°C),VRTemp(°C),Hashrate(GH/s),J/TH,CoreVoltage(mV),CoreVoltageActual(mV),Note\n")
-                f.write(f"{timestamp},{system_info['frequency']},"
-                        f"{system_info['power']:.2f},{system_info['voltage']:.2f},"
-                        f"{system_info['current']:.2f},{system_info['temp']:.2f},"
-                        f"{system_info['vrTemp']:.2f},{system_info['hashRate']:.2f},"
-                        f"{system_info['jth']:.2f},{system_info['coreVoltage']},"
-                        f"{system_info['coreVoltageActual']},{note}\n")
+                    f.write("Timestamp,Hashrate(GH/s),Frequency(MHz),Temp(°C),VRTemp(°C),CoreVoltage(mV),CoreVoltageActual(mV),"
+                            "Power(W),Current(mA),Voltage(mV),J/TH,Note\n")
+                f.write(f"{timestamp},{system_info['hashRate']:.2f},{system_info['frequency']},"
+                        f"{system_info['temp']:.2f},{system_info['vrTemp']:.2f},{system_info['coreVoltage']},"
+                        f"{system_info['coreVoltageActual']},{system_info['power']:.2f},{system_info['current']:.2f},"
+                        f"{system_info['voltage']:.2f},{system_info['jth']:.2f},{note}\n")
             return readings_filename
         except IOError as e:
             print(RED + f"Error logging readings data: {e}" + RESET)
@@ -243,12 +241,21 @@ def log_data(frequency, core_voltage, run_number, note="", min_values=None, max_
         print(RED + f"Error logging summaries data: {e}" + RESET)
         return summaries_filename
 
-def display_status(reading_count, total_readings):
-    """Display current system status, including coreVoltage and reading progress (x/y)."""
+def display_status(reading_count, total_readings, run_number, total_tests, start_time):
+    """Display current system status, including coreVoltage, reading progress (x/y), test number, and estimated time remaining."""
     temp_color = RED if system_info["temp"] >= CONFIG["max_temp_critical"] else ORANGE if system_info["temp"] >= CONFIG["max_temp_warning"] else GREEN
     vrtemp_color = RED if system_info["vrTemp"] >= CONFIG["max_vrtemp_critical"] else ORANGE if system_info["vrTemp"] >= CONFIG["max_vrtemp_warning"] else GREEN
     power_color = RED if system_info["power"] >= CONFIG["max_power_critical"] else ORANGE if system_info["power"] >= CONFIG["max_power_warning"] else GREEN
-    print(f"{GREEN}Status [{datetime.now().strftime('%H:%M:%S')} ({reading_count}/{total_readings})]{RESET}")
+    
+    # Calculate estimated time remaining in hours and minutes
+    elapsed_time = time.time() - start_time
+    remaining_tests = total_tests - run_number
+    time_remaining = (CONFIG["run_duration"] - elapsed_time) + (remaining_tests * CONFIG["run_duration"])
+    hours = int(time_remaining // 3600)
+    minutes = int((time_remaining % 3600) // 60)
+    
+    print(f"{GREEN}Status [{datetime.now().strftime('%H:%M:%S')}] Test {run_number}/{total_tests} ({reading_count}/{total_readings}) "
+          f"Est. Time Remaining: {hours}h {minutes}m{RESET}")
     print(f"Hashrate: {system_info['hashRate']:.2f} GH/s")
     print(f"J/TH: {system_info['jth']:.2f} J/TH")
     print(f"Temp: {temp_color}{system_info['temp']:.2f}°C{RESET}")
@@ -294,7 +301,7 @@ def display_summary(csv_files):
     else:
         print(ORANGE + "No CSV files generated." + RESET)
 
-def run_test(frequency, core_voltage, run_number, reboot_threshold):
+def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests):
     """Run a single test at specified frequency and core voltage."""
     global best_hashrate, best_frequency, best_voltage, critical_temp_reached
     if not set_system_settings(frequency, core_voltage):
@@ -374,7 +381,7 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold):
             return csv_filename
 
         reading_count += 1
-        display_status(reading_count, total_readings)
+        display_status(reading_count, total_readings, run_number, total_tests, start_time)
 
         if time.time() - last_log_time >= CONFIG["log_interval"]:
             csv_filename = log_data(frequency, core_voltage, run_number)
@@ -400,6 +407,9 @@ def main():
     global readings_filename, summaries_filename
     initial_core_voltage, initial_frequency, bitaxe_ip, freq_range, freq_step, reboot_threshold = parse_arguments()
     
+    # Calculate total number of tests
+    total_tests = ((initial_frequency + freq_range) - (initial_frequency - freq_range)) // freq_step + 1
+    
     # Initialize log filenames with frequency, voltage, and timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     readings_filename = f"bitaxe_readings_freq_{initial_frequency}_volt_{initial_core_voltage}_{timestamp}.csv"
@@ -417,7 +427,7 @@ def main():
     csv_files = [readings_filename, summaries_filename]
 
     for run_number, freq in enumerate(range(start_frequency, initial_frequency + freq_range + 1, freq_step), 1):
-        csv_file = run_test(freq, initial_core_voltage, run_number, reboot_threshold)
+        csv_file = run_test(freq, initial_core_voltage, run_number, reboot_threshold, total_tests)
         if csv_file and csv_file not in csv_files:
             csv_files.append(csv_file)
         if is_interrupted or critical_temp_reached:
@@ -431,7 +441,7 @@ def main():
                 print(RED + f"Failed to set best hashrate settings. Reverting to initial settings." + RESET)
                 set_system_settings(initial_frequency, initial_core_voltage)
         else:
-            print(ORANGE + "No valid runs completed. Reverting to initial settings." + RESET)
+            print(ORANGE + "No valid runs completed. Setting to initial settings." + RESET)
             set_system_settings(initial_frequency, initial_core_voltage)
 
     display_summary(csv_files)
