@@ -7,21 +7,101 @@ The `bitaxe_status_logger.py` is a Python script designed to monitor and log the
 
 The idea is that you already know from other tuning scripts and efforts approximately how hard you can drive your BitAxe in terms of Voltage without going over the Power, Temperature, or Voltage Regulator Temperatures. I have Kryonaut thermal paste, a low-profile pro heat sink with a 60mm Noctua fan on the front and back. I know my voltage limit is 1295mV. This code helps find the optimal frequency for the set voltage.
 
-Use the bm1370_voltage_calculator.py to get some estimates on frequency, voltage, and expected hash rates. Then use bitaxe_status_logger.py to test various frequencies around that voltage to find the maximum hash rate.
+Use the bm1370_voltage_hashrate_calculator.py to get some estimates on frequency, voltage, and expected hash rates. Then use bitaxe_status_logger.py to test various frequencies around that voltage to find the maximum hash rate.
 ```
-Frequency: 400 MHz, Voltage: 0.9000 V, Estimated Hashrate: 816.0 GH/s
-Frequency: 550 MHz, Voltage: 1.1000 V, Estimated Hashrate: 1122.0 GH/s
-Frequency: 650 MHz, Voltage: 1.1404 V, Estimated Hashrate: 1326.0 GH/s
-Frequency: 700 MHz, Voltage: 1.1607 V, Estimated Hashrate: 1428.0 GH/s
-Frequency: 750 MHz, Voltage: 1.1809 V, Estimated Hashrate: 1530.0 GH/s
-Frequency: 800 MHz, Voltage: 1.2011 V, Estimated Hashrate: 1632.0 GH/s
-Frequency: 850 MHz, Voltage: 1.2213 V, Estimated Hashrate: 1734.0 GH/s
-Frequency: 900 MHz, Voltage: 1.2416 V, Estimated Hashrate: 1836.0 GH/s
-Frequency: 950 MHz, Voltage: 1.2618 V, Estimated Hashrate: 1938.0 GH/s
-Frequency: 1000 MHz, Voltage: 1.2820 V, Estimated Hashrate: 2040.0 GH/s
-Frequency: 1005 MHz, Voltage: 1.2950 V, Estimated Hashrate: 2050.2 GH/s
-Frequency: 1050 MHz, Voltage: 1.4120 V, Estimated Hashrate: 2142.0 GH/s
-Frequency: 1075 MHz, Voltage: 1.4770 V, Estimated Hashrate: 2193.0 GH/s
+Frequency (MHz) | Voltage (mV) | Est. Hashrate (GH/s)
+------------------------------------------------
+            400 | 900.0       | 843.4
+            410 | 913.3       | 864.5
+            420 | 926.7       | 885.6
+            430 | 940.0       | 906.7
+            440 | 953.3       | 927.7
+            450 | 966.7       | 948.8
+            460 | 980.0       | 969.9
+            470 | 993.3       | 991.0
+            480 | 1006.7       | 1012.1
+            490 | 1020.0       | 1033.2
+            500 | 1033.3       | 1054.2
+            510 | 1046.7       | 1075.3
+            520 | 1060.0       | 1096.4
+            530 | 1073.3       | 1117.5
+            540 | 1086.7       | 1138.6
+            550 | 1100.0       | 1159.7
+            560 | 1104.4       | 1180.8
+            570 | 1108.8       | 1201.8
+            580 | 1113.1       | 1222.9
+            590 | 1117.5       | 1244.0
+            600 | 1121.9       | 1265.1
+            610 | 1126.3       | 1286.2
+            620 | 1130.6       | 1307.3
+            630 | 1135.0       | 1328.4
+            640 | 1139.4       | 1349.4
+            650 | 1143.8       | 1370.5
+            660 | 1148.2       | 1391.6
+            670 | 1152.5       | 1412.7
+            680 | 1156.9       | 1433.8
+            690 | 1161.3       | 1454.9
+            700 | 1165.7       | 1475.9
+            710 | 1170.0       | 1497.0
+            720 | 1174.4       | 1518.1
+            730 | 1178.8       | 1539.2
+            740 | 1183.2       | 1560.3
+            750 | 1187.6       | 1581.4
+            760 | 1191.9       | 1602.5
+            770 | 1196.3       | 1623.5
+            780 | 1200.7       | 1644.6
+            790 | 1205.1       | 1665.7
+            800 | 1209.4       | 1686.8
+            810 | 1213.8       | 1707.9
+            820 | 1218.2       | 1729.0
+            830 | 1222.6       | 1750.1
+            840 | 1227.0       | 1771.1
+            850 | 1231.3       | 1792.2
+            860 | 1235.7       | 1813.3
+            870 | 1240.1       | 1834.4
+            880 | 1244.5       | 1855.5
+            890 | 1248.8       | 1876.6
+            900 | 1253.2       | 1897.6
+            910 | 1257.6       | 1918.7
+            920 | 1262.0       | 1939.8
+            930 | 1266.4       | 1960.9
+            940 | 1270.7       | 1982.0
+            950 | 1275.1       | 2003.1
+            960 | 1279.5       | 2024.2
+            970 | 1283.9       | 2045.2
+            980 | 1288.2       | 2066.3
+            990 | 1292.6       | 2087.4
+           1000 | 1297.0       | 2108.5
+           1010 | 1301.0       | 2129.6
+           1020 | 1305.0       | 2150.7
+           1030 | 1309.0       | 2171.8
+           1040 | 1313.0       | 2192.8
+           1050 | 1317.0       | 2213.9
+           1060 | 1321.0       | 2235.0
+           1070 | 1325.0       | 2256.1
+           1080 | 1329.0       | 2277.2
+           1090 | 1333.0       | 2298.3
+           1100 | 1337.0       | 2319.3
+           1110 | 1341.0       | 2340.4
+           1120 | 1345.0       | 2361.5
+           1130 | 1349.0       | 2382.6
+           1140 | 1353.0       | 2403.7
+           1150 | 1357.0       | 2424.8
+           1160 | 1361.0       | 2445.9
+           1170 | 1365.0       | 2466.9
+           1180 | 1369.0       | 2488.0
+           1190 | 1373.0       | 2509.1
+           1200 | 1377.0       | 2530.2
+           1210 | 1381.0       | 2551.3
+           1220 | 1385.0       | 2572.4
+           1230 | 1389.0       | 2593.5
+           1240 | 1393.0       | 2614.5
+           1250 | 1397.0       | 2635.6
+           1260 | 1401.0       | 2656.7
+           1270 | 1405.0       | 2677.8
+           1280 | 1409.0       | 2698.9
+           1290 | 1413.0       | 2720.0
+           1300 | 1417.0       | 2741.0
 ```
 ## Features
 - **Frequency Range Testing**: Tests the Bitaxe across a user-defined frequency range (e.g., 490–510 MHz) with configurable steps.
