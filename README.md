@@ -115,8 +115,8 @@ Frequency (MHz) | Voltage (mV) | Est. Hashrate (GH/s)
   - Records hashrate, frequency, chip temperature, VR temperature, core voltage, power, current, voltage, and J/TH.
   - Readings log with customizable column order: `Timestamp,Hashrate(GH/s),Frequency(MHz),Temp(°C),VRTemp(°C),CoreVoltage(mV),CoreVoltageActual(mV),Power(W),Current(mA),Voltage(mV),J/TH,Note`.
 - **Critical Threshold Monitoring**:
-  - Stops testing if power ≥ 39 W, chip temperature ≥ 67°C, or VR temperature ≥ 90°C.
-  - Warns (orange console output) if power ≥ 35 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C.
+  - Stops testing if power ≥ 27 W, chip temperature ≥ 67°C, or VR temperature ≥ 90°C. (Confirgurable in code)
+  - Warns (orange console output) if power ≥ 25 W, chip temperature ≥ 63°C, or VR temperature ≥ 80°C. (Configurable in code)
   - Reduces frequency by 10 MHz and voltage by 10 mV on critical events.
 - **Reboot Capability**:
   - Reboots the Bitaxe if a specified number of consecutive identical hashrate readings are detected (`-reboot X`).
@@ -139,7 +139,7 @@ Frequency (MHz) | Voltage (mV) | Est. Hashrate (GH/s)
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/bitaxe-status-logger.git
+   git clone https://github.com/andelorean/bitaxe-frequency_sweeper.git
    cd bitaxe-status-logger
    ```
 2. Install dependencies:
