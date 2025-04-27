@@ -22,8 +22,8 @@ CONFIG = {
     "max_temp_critical": 67,  # °C for chip temperature
     "max_vrtemp_warning": 80,  # °C for voltage regulator temperature
     "max_vrtemp_critical": 90,  # °C for voltage regulator temperature
-    "max_power_warning": 35,  # W for power
-    "max_power_critical": 39,  # W for power
+    "max_power_warning": 24,  # W for power
+    "max_power_critical": 27,  # W for power
     "min_frequency": 400,  # MHz (safety minimum)
     "min_core_voltage": 1000,  # mV (safety minimum)
 }
