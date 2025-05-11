@@ -20,18 +20,18 @@ CONFIG = {
     "log_interval": 10,  # seconds (1 minute)
     "status_interval": 10,  # seconds
     "max_temp_warning": 65,  # °C for chip temperature
-    "max_temp_critical": 69,  # °C for chip temperature
-    "max_vrtemp_warning": 80,  # °C for voltage regulator temperature
+    "max_temp_critical": 67,  # °C for chip temperature
+    "max_vrtemp_warning": 83,  # °C for voltage regulator temperature
     "max_vrtemp_critical": 87,  # °C for voltage regulator temperature
-    "max_power_warning": 24,  # W for power
-    "max_power_critical": 27,  # W for power
-#    "max_power_warning": 39,  # W for power for Mean Well 100W power supply
-#    "max_power_critical": 43,  # W for power for Mean Well 100W power supply
+    "max_power_warning": 23,  # W for power
+    "max_power_critical": 25,  # W for power
+#    "max_power_warning": 38,  # W for power, for mean well 100W power supply
+#    "max_power_critical": 43,  # W for power, for mean well 100W power supply
     "min_frequency": 400,  # MHz (safety minimum)
     "min_core_voltage": 1000,  # mV (safety minimum)
     "critical_advance_margin": 2,  # Margin below critical thresholds to advance to next settings
     "readings_to_advance": 5,  # Number of readings to take before allowing another settings adjustment
-    "advance_delay": 10800,  # seconds (180 minutes, 3 hours) to wait before advancing after a critical fallback
+    "advance_delay": 3600,  # seconds (120 minutes) to wait before advancing after a critical fallback
 }
 
 # Global variables
@@ -264,7 +264,7 @@ def log_data(frequency, core_voltage, run_number, note="", min_values=None, max_
             return readings_filename
         except IOError as e:
             print(RED + f"Error logging readings data: {e}" + RESET)
-        return readings_filename
+            return readings_filename
     
     # Log summaries to summaries file (skipped in monitor mode)
     try:
@@ -448,7 +448,7 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests,
     hashrate_readings = []  # For reboot tracking only
     last_hashrate = None
     identical_hashrate_count = 0
-    readings_since_adjustment = CONFIG["readings_to_advance"]  # Start at threshold to allow initial adjustment
+    readings_since_adjustment = 0  # Start at 0 to require initial readings
 
     while (monitor_mode or time.time() - start_time < CONFIG["run_duration"]) and not is_interrupted:
         # Fetch system info
@@ -458,7 +458,6 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests,
             continue
 
         reading_count += 1
-        readings_since_adjustment += 1  # Increment counter after each reading
 
         # Check for identical hashrate readings if reboot_threshold is set
         if reboot_threshold is not None:
@@ -529,6 +528,9 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests,
                     print(ORANGE + "No valid runs completed or in monitor mode. Setting to initial settings." + RESET)
                     set_system_settings(initial_frequency, initial_core_voltage)
                 return csv_filename
+
+        # Increment readings counter after adjustment check
+        readings_since_adjustment += 1
 
         # Log data if interval reached
         if time.time() - last_log_time >= CONFIG["log_interval"]:
