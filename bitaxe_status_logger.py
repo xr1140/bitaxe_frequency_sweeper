@@ -19,19 +19,17 @@ CONFIG = {
     "run_duration": 600,  # seconds (10 minutes per run)
     "log_interval": 10,  # seconds (1 minute)
     "status_interval": 10,  # seconds
-    "max_temp_warning": 65,  # °C for chip temperature
-    "max_temp_critical": 67,  # °C for chip temperature
-    "max_vrtemp_warning": 83,  # °C for voltage regulator temperature
-    "max_vrtemp_critical": 87,  # °C for voltage regulator temperature
+    "max_temp_warning": 62,  # °C for chip temperature
+    "max_temp_critical": 65,  # °C for chip temperature
+    "max_vrtemp_warning": 80,  # °C for voltage regulator temperature
+    "max_vrtemp_critical": 85,  # °C for voltage regulator temperature
     "max_power_warning": 23,  # W for power
-    "max_power_critical": 25,  # W for power
-#    "max_power_warning": 38,  # W for power, for mean well 100W power supply
-#    "max_power_critical": 43,  # W for power, for mean well 100W power supply
+    "max_power_critical": 26,  # W for power
     "min_frequency": 400,  # MHz (safety minimum)
     "min_core_voltage": 1000,  # mV (safety minimum)
     "critical_advance_margin": 2,  # Margin below critical thresholds to advance to next settings
     "readings_to_advance": 5,  # Number of readings to take before allowing another settings adjustment
-    "advance_delay": 3600,  # seconds (120 minutes) to wait before advancing after a critical fallback
+    "advance_delay": 7200,  # seconds (120 minutes) to wait before advancing after a critical fallback
 }
 
 # Global variables
@@ -491,8 +489,8 @@ def run_test(frequency, core_voltage, run_number, reboot_threshold, total_tests,
                     log_data(frequency, core_voltage, run_number, note=note)
                 else:
                     print(RED + f"Failed to adjust settings to {new_frequency} MHz, {new_core_voltage} mV. Continuing with current settings." + RESET)
-        else:
-            # Original critical condition check (without values.csv or not in monitor mode)
+        elif not values_file:
+            # Check for critical conditions only if not using values.csv
             if (system_info["temp"] >= CONFIG["max_temp_critical"] or 
                 system_info["vrTemp"] >= CONFIG["max_vrtemp_critical"] or
                 system_info["power"] >= CONFIG["max_power_critical"]):
