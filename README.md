@@ -1,12 +1,12 @@
 # WARNING: This code overclocks your BitAxe and could damage it. I take no responsibility for damage to your BitAxe. Use at your own risk!!!
 
-My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6x25 fanes, a 100W Mean Well power supply, and an additional fan blowing on it. Be careful with the settings inside the code and the values.csv file to ensure they meet your requirements.
+My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6x25 fanes, a 100W Mean Well power supply, and an additional fan blowing on it. Be careful with the settings inside the code and the values.csv file to ensure they meet your requirements. (https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe.png)
 
 # Bitaxe Frequency Sweeper and Status Logger
 
 The **Bitaxe Status Logger** is a Python script for monitoring and optimizing the performance of a Bitaxe Bitcoin mining device. It tracks key metrics such as hashrate, temperature, voltage regulator temperature, power consumption, and Joules per Terahash (J/TH), logging them to CSV files for analysis. The script supports both testing across a frequency range and continuous monitoring with dynamic adjustments based on a provided list of known good voltage/frequency pairs.
 
-The idea is that you already know from other tuning scripts and efforts approximately how hard you can drive your BitAxe in terms of Voltage without going over the Power, Temperature, or Voltage Regulator Temperatures. I have Kryonaut thermal paste, a low-profile pro heat sink with a 60mmx25mm Noctua fan on the front and back. I know my voltage limit is 1307mV. This code helps find the optimal frequency for the set voltage.
+The idea is that you already know from other tuning scripts and efforts approximately how hard you can drive your BitAxe in terms of Voltage without going over the Power, Temperature, or Voltage Regulator Temperatures. I have Kryonaut thermal paste, a low-profile pro heat sink with a 60mmx25mm Noctua fan on the front and back. I know my voltage limit is 1328mV. This code helps find the optimal frequency for the set voltage.
 
 Use the bm1370_voltage_calculator.py to get some estimates on frequency, voltage, and expected hash rates. Then use bitaxe_status_logger.py to test various frequencies around that voltage to find the maximum hashrate.
 
@@ -40,9 +40,9 @@ Frequency: 1070 MHz, Voltage: 1325.1 mV, Estimated Hashrate: 2300.5 GH/s
 ```
 >python bitaxe_status_logger.py -f 650 -v 1135 -range 5 -step 1 -ip [your bitaxe ip] -reboot 5
 ```
-This will test the frequencies from 645 to 655 in increments of 1, run for 10 minutes each, find the maximum hashrate, set the bitaxe at the end. All while logging and displaying updates. If any temp, vr temp, or power exceed critical thresholds it will fall back. If the bitaxe hangs and produces 5 same hashrate readings, it will reboot the bitaxe.
+This will test the frequencies from 645 to 655 in increments of 1, run for 10 minutes each, find the maximum hashrate, set the bitaxe at the end to the frequency and voltage that produced the highest hashrate. All while logging and displaying updates. If any temp, vr temp, or power exceed critical thresholds it will fall back. If the bitaxe hangs and produces 5 same hashrate readings, it will reboot the bitaxe.
 
-Then, once you have a list of optimal frequencies and voltages, you place them in a CSV (values.csv) and run your system. The code will keep climbing as high as possible without going over the critical temp, vr temp, or power settings defined in the CONFIG section of the code.
+Then, once you have a list of optimal frequencies and voltages, you place them in a CSV (values.csv) and run your system in monitor mode. The code will keep climbing as high as possible without going over the critical temp, vr temp, or power settings defined in the CONFIG section of the code. After it increases, it will take 5 readings (set in code) prior to advancing to the next level.
 
 ```
 >python bitaxe_status_logger.py -f 1290 -v 992 -m -values values.csv -ip [your bitaxe ip] -reboot 5
@@ -68,7 +68,9 @@ Voltage,Frequency
 1325,1065
 ```
 
-This will sequentially keep increasing through the given values until we are 'critical_advance_margin' (2) away from the critical values for temp, vr temp, and power. This allows us to drive the bitaxe as hard as possible while allowing for ambient air temperature changes throughout the day. If critical values are exceeded, step back down to the next lowest value and do not attempt to advance again for 'advance_delay' (3 hours) to allow the ambient temperature to cool down. 
+This will sequentially keep increasing through the given values until we are 'critical_advance_margin' (2) away from the critical values for temp, vr temp, and power. This allows us to drive the bitaxe as hard as possible while allowing for ambient air temperature changes throughout the day. If critical values are exceeded, step back down to the next lowest value and do not attempt to advance again for 'advance_delay' (2 hours) to allow the ambient temperature to cool down.
+
+This assumes that your have small incremental increases in your CSV file. If you have large increases you could easily jump over the critical temp, vr temp, and power settings causing harm to your bitaxe as it needs 5 readings before tuning back down, by which time you could fry your bitaxe. So, use sensible values in your CSV file.
 
 ## Features
 
@@ -108,7 +110,7 @@ This will sequentially keep increasing through the given values until we are 'cr
      1200,500
      1300,550
      ```
-   - Place `values.csv` in the same directory as the script or specify its path using the `--values` flag.
+   - Place `values.csv` in the same directory as the script or specify its path using the `-values` flag.
 
 ## Usage
 
