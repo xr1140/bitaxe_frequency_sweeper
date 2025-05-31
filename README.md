@@ -5,6 +5,10 @@ My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6
 ![Image 1](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe1.png "BitAxe Image 1")
 ![Image 2](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe2.png "BitAxe Image 2")
 
+# Quick Note
+
+The CONFIG is initially set for a factory 30W power supply with a warning at 24W and a critical limit of 27W. If you have a larger power supply, please modify the code and CONFIG section accordingly. The BitAxe max recommended power is 45W, I have my settings at max_power_warning=39 and max_power_critical=44W. Advance beyond this at your own risk.
+
 # Bitaxe Frequency Sweeper and Status Logger
 
 The **Bitaxe Status Logger** is a Python script for monitoring and optimizing the performance of a Bitaxe Bitcoin mining device. It tracks key metrics such as hashrate, temperature, voltage regulator temperature, power consumption, and Joules per Terahash (J/TH), logging them to CSV files for analysis. The script supports both testing across a frequency range and continuous monitoring with dynamic adjustments based on a provided list of known good voltage/frequency pairs.
