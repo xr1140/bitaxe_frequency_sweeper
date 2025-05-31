@@ -1,6 +1,6 @@
 # WARNING: This code overclocks your BitAxe and could damage it. I take no responsibility for damage to your BitAxe. Use at your own risk!!!
 
-My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6x25 fanes, a 100W Mean Well power supply, and 2 additional fan blowing on it (See Image). Be careful with the settings inside the code and the values.csv file to ensure they meet your requirements and your bitaxe capabilities..
+My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6x25 fans, a 100W Mean Well power supply, and 2 additional fan blowing on it (See Image). Be careful with the settings inside the code and the values.csv file to ensure they meet your requirements and your bitaxe capabilities.
 
 # Bitaxe Frequency Sweeper and Status Logger
 
