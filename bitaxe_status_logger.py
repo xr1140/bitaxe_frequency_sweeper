@@ -55,12 +55,12 @@ CONFIG = {
     # Warning threshold for power consumption in watts (default: 38W).
     # Triggers orange-colored console output when power exceeds this value.
     # Helps monitor excessive power draw that may indicate inefficiency or risk.
-    "max_power_warning": 24,
+    "max_power_warning": 21,
 
     # Critical threshold for power consumption in watts (default: 44W).
     # Triggers test termination and reduces voltage/frequency if exceeded.
     # Prevents damage or instability due to excessive power consumption.
-    "max_power_critical": 27,
+    "max_power_critical": 25,
 
     # Minimum allowable frequency in MHz (default: 400 MHz).
     # Ensures the Bitaxe does not operate below this frequency to maintain stability.
