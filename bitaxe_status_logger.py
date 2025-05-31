@@ -55,12 +55,12 @@ CONFIG = {
     # Warning threshold for power consumption in watts (default: 38W).
     # Triggers orange-colored console output when power exceeds this value.
     # Helps monitor excessive power draw that may indicate inefficiency or risk.
-    "max_power_warning": 38,
+    "max_power_warning": 24,
 
     # Critical threshold for power consumption in watts (default: 44W).
     # Triggers test termination and reduces voltage/frequency if exceeded.
     # Prevents damage or instability due to excessive power consumption.
-    "max_power_critical": 44,
+    "max_power_critical": 27,
 
     # Minimum allowable frequency in MHz (default: 400 MHz).
     # Ensures the Bitaxe does not operate below this frequency to maintain stability.
@@ -91,12 +91,12 @@ CONFIG = {
     # Frequency range in MHz to test above and below the center frequency (default: 10 MHz).
     # Defines the sweep width around the initial or calculated frequency in sweep mode.
     # Ignored in monitor mode. Larger ranges test more frequencies but increase test time.
-    "range": 10,
+    "range": 3,
 
     # Frequency step size in MHz for sweeps (default: 2 MHz).
     # Determines the increment between tested frequencies within the range.
     # Ignored in monitor mode. Smaller steps increase granularity but extend test duration.
-    "step": 2,
+    "step": 1,
 
     # Number of consecutive identical hashrate readings to trigger a reboot (default: None).
     # If set, reboots the Bitaxe after detecting the specified number of identical hashrates.
