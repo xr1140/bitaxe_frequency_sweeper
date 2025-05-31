@@ -2,6 +2,9 @@
 
 My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6x25 fans, a 100W Mean Well power supply, and 2 additional fan blowing on it (See Image). Be careful with the settings inside the code and the values.csv file to ensure they meet your requirements and your bitaxe capabilities.
 
+![Image 1](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe1.png "BitAxe Image 1")
+![Image 2](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe2.png "BitAxe Image 2")
+
 # Bitaxe Frequency Sweeper and Status Logger
 
 The **Bitaxe Status Logger** is a Python script for monitoring and optimizing the performance of a Bitaxe Bitcoin mining device. It tracks key metrics such as hashrate, temperature, voltage regulator temperature, power consumption, and Joules per Terahash (J/TH), logging them to CSV files for analysis. The script supports both testing across a frequency range and continuous monitoring with dynamic adjustments based on a provided list of known good voltage/frequency pairs.
