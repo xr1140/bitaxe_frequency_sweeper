@@ -22,6 +22,8 @@ Grizzly Kryonaut Thermal Paste - (https://a.co/d/gh5MUS5)
 
 M3 Screws - (https://a.co/d/5Ki5SrF)
 
+3D Printed Parts - Noctua fan adapter (https://ixtech.xyz/products/noctua-a6x15-or-a6x25-adapter-for-52pi-low-profile-plus-ice-tower) and heatsink adapters (https://ixtech.xyz/products/bitaxe-ice-tower-adaptor)
+
 # Quick Note
 
 The CONFIG is initially set for a factory 30W power supply with a warning at 21W and a critical limit of 25W. If you have a larger power supply, please modify the code and CONFIG section accordingly. The BitAxe max recommended power is 45W, I have my settings at max_power_warning=39 and max_power_critical=44W. Advance beyond this at your own risk.
