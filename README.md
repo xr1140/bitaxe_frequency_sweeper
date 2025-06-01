@@ -5,6 +5,16 @@ My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6
 ![Image 1](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe1.png "BitAxe Image 1")
 ![Image 2](https://github.com/andelorean/bitaxe_frequency_sweeper/blob/main/bitaxe2.png "BitAxe Image 2")
 
+# Enhancements
+2 x Noctua NF-A6x25 - (https://a.co/d/4JpO75Y)
+2 x 140mm USB Fans - (https://a.co/d/iIPiaDv) - One pointing in and one pointing out to create a cross breeze.
+Heatsinks and Copper Plate between ASIC and Heatsink (Remove tape on copper plate, copper only) - (https://a.co/d/7xdRhIE)
+  Thermal Paste between each layer
+Heatsink Fasteners - (https://a.co/d/bkRjZCi)
+Low-Profile Heatsink - (https://a.co/d/glE6BnN)
+Grizzly Kryonaut Thermal Paste - (https://a.co/d/gh5MUS5)
+M3 Screws - (https://a.co/d/5Ki5SrF)
+
 # Quick Note
 
 The CONFIG is initially set for a factory 30W power supply with a warning at 21W and a critical limit of 25W. If you have a larger power supply, please modify the code and CONFIG section accordingly. The BitAxe max recommended power is 45W, I have my settings at max_power_warning=39 and max_power_critical=44W. Advance beyond this at your own risk.
