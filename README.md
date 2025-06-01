@@ -81,6 +81,11 @@ This will sequentially keep increasing through the given values until we are 'cr
 ```
 This will use the frequencies from the values.csv file as the starting point for each test. This will test +/- 3 MHz around each frequency in the values.csv file to find the max hashrate for the voltage in increments of 1 (step size). It will test voltages from 1290 to 1302 in steps of 1 (not configurable). If there is no entry in the values.csv file for a voltage, it will attempt to calculate it using the equation in bm1370_voltage_calculator.py
 
+Once you have found good values and placed them in values.csv, periodically go back and test them to ensure they are still optimal, change "run_duration" to 1200 in the code under the CONFIG section or greater to really let it burn in and find the best hashrate.
+```
+>python bitaxe_status_logger.py -start 1362 -stop 1366 -range 2 -step 1 -ip 192.168.2.205 -values values.csv
+```
+This will test voltages from 1362 to 1366 with frequencies from values.csv. It will do a range of +/- 2 for each frequency. So, if the frequency from values for 1362 is 1162, it will test 1160-1164 at a step of 1. Find the best values and update the values.csv file. If the best value is the highest frequency, you may need to test again at a higher frequency, however, a few iterations and it should get dialed in automatically.
 
 # Bitaxe Status Logger
 
