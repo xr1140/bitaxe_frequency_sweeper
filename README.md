@@ -7,12 +7,19 @@ My bitaxe has upgraded thermal paste, a low-profile pro heatsink, 2 Noctua NF-A6
 
 # Enhancements
 2 x Noctua NF-A6x25 - (https://a.co/d/4JpO75Y)
+
 2 x 140mm USB Fans - (https://a.co/d/iIPiaDv) - One pointing in and one pointing out to create a cross breeze.
+
 Heatsinks and Copper Plate between ASIC and Heatsink (Remove tape on copper plate, copper only) - (https://a.co/d/7xdRhIE)
+
   Thermal Paste between each layer
+  
 Heatsink Fasteners - (https://a.co/d/bkRjZCi)
+
 Low-Profile Heatsink - (https://a.co/d/glE6BnN)
+
 Grizzly Kryonaut Thermal Paste - (https://a.co/d/gh5MUS5)
+
 M3 Screws - (https://a.co/d/5Ki5SrF)
 
 # Quick Note
